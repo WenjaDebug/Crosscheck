@@ -115,6 +115,15 @@ def test_all_five_errors_are_found_with_the_fix():
             assert found[key]["fix"]["cells"] == cells, (key, found[key]["fix"])
 
 
+def test_a_year_in_a_section_row_is_no_assumption():
+    # Englisch beschriftet: „C. Fixed assets & depreciation“ trägt die Jahre 2025 … 2030 und unterscheidet sich von
+    # „Fixed assets end“ nur in einem Wort. Die Jahreszahl C36 ist trotzdem keine Annahme, die D38 lesen sollte.
+    english = {"A36": "C. Fixed assets & depreciation", "A37": "Capex", "A38": "Depreciation (D&A)",
+               "A39": "Fixed assets end", "A8": "Depreciation rate on prior-year fixed assets"}
+    assert set(_found(True, change=english)) == set(PLANTED)
+    assert _found(False, change=english) == {}
+
+
 def test_the_clean_model_stays_quiet():
     assert _found(False) == {}
 

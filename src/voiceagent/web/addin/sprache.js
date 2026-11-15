@@ -263,6 +263,7 @@ const EN = {
   "Einsetzen ging nicht. {0} Du kannst die Korrektur oben auch selbst eintippen.":
     "Applying did not work. {0} You can also type the fix above yourself.",
   "Einsetzen": "Apply",
+  "Alle {0} einsetzen": "Apply all {0}",
   "Entsteht aus": "Made from",
   "Ergebnis": "Result",
   "Ergebnisse": "Results",
