@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Zustand · Gegenprobe</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <p class="back"><a href="/">← Zurück zum Start</a></p>
+    <h1>Zustand</h1>
+    <p class="sub">Läuft alles? Hier steht für jeden Baustein, ob er bereit ist, und was zu tun ist, wenn etwas fehlt.</p>
+  </header>
+
+  <main>
+    <ul id="checks" class="checks"><li class="sub">Ich prüfe …</li></ul>
+    <p class="controls"><button id="again" type="button">Noch einmal prüfen</button></p>
+
+    <section class="panel">
+      <h2>Fehlerbericht</h2>
+      <p class="sub">Geht etwas nicht, lade den Bericht herunter und schick ihn mit, wenn du um Hilfe fragst. Darin stehen der
+        Zustand, die Versionen und die letzten Warnungen. Zellinhalte stehen nie
+        darin, und E-Mail-Adressen, IBAN und Ähnliches sind geschwärzt. Was genau darin steht, siehst du unten.</p>
+      <p class="controls"><a class="button" href="/api/zustand/bericht" download>Fehlerbericht herunterladen</a></p>
+      <details>
+        <summary>Was im Bericht steht</summary>
+        <pre id="report" class="report"></pre>
+      </details>
+    </section>
+  </main>
+
+  <script src="/zustand.js"></script>
+</body>
+</html>

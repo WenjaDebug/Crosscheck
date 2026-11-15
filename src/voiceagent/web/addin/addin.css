@@ -1,0 +1,396 @@
+/* Seitenfenster in Excel, etwa 320 bis 360 Pixel breit. Look A, „ruhig, klinisch, modern“: ein heller, kühler
+   Grund, weiße Karten mit runden Ecken, ein Blau als Hauptfarbe. Rot heißt Fehler, Orange Prüfen, Grün erledigt.
+   Ein Hinweis ist eine Karte: vorne die Zelle als Kachel, darunter warum, was jetzt steht und was richtig wäre,
+   und die Korrektur wie in der Bearbeitungsleiste (fx). Auf einem dunkel gestellten Mac derselbe Aufbau, nur
+   gedämpft. */
+body.addin {
+  --bg: #f5f7fa;
+  --card: #ffffff;
+  --fg: #0f172a;
+  --muted: #64748b;
+  --border: #edf0f5;
+  --line-strong: #e2e7ee;
+  --hover: #f8fafc;
+  --grid: #e2e7ee;
+  --accent: #2563eb;
+  --accent-2: #4f46e5;
+  --btn-1: #2563eb;
+  --btn-2: #4f46e5;
+  --accent-hover: #1d4ed8;
+  --accent-soft: #eff4ff;
+  --on-accent: #ffffff;
+  --fehler: #dc2626;
+  --fehler-soft: #fef2f2;
+  --pruefen: #d97706;
+  --pruefen-soft: #fff7ed;
+  --info: #64748b;
+  --info-soft: #f1f5f9;
+  --ok: #16a34a;
+  --ok-soft: #f0fdf4;
+  --ok-line: #dcfce7;
+  --fix: #dc2626;
+  --mono: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+  --fg-soft: #334155;
+  --link: #2563eb;
+  --panel: #f8fafc;
+  --code-bg: #f1f5f9;
+  --del-bg: #fee2e2;
+  --ins-bg: #dcfce7;
+  --track: #e9edf3;
+  --shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 14px rgba(15, 23, 42, 0.05);
+  --glow: 0 4px 12px rgba(37, 99, 235, 0.28);
+  background: var(--bg);
+  color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  font-size: 13.5px;
+  line-height: 1.45;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+@media (prefers-color-scheme: dark) {
+  body.addin {
+    --bg: #12151a;
+    --card: #1b1f26;
+    --fg: #e6e9ef;
+    --muted: #97a1b0;
+    --border: #262c35;
+    --line-strong: #323944;
+    --hover: #222731;
+    --grid: #3a424e;
+    --accent: #6d8ff5;
+    --accent-2: #7c74ea;
+    --btn-1: #3f63d8;
+    --btn-2: #5a52cc;
+    --accent-hover: #86a2f7;
+    --accent-soft: #1f2840;
+    --on-accent: #ffffff;
+    --fehler: #f08a8a;
+    --fehler-soft: #2c1d20;
+    --pruefen: #e8b25a;
+    --pruefen-soft: #2b2419;
+    --info: #97a1b0;
+    --info-soft: #222731;
+    --ok: #5fcf86;
+    --ok-soft: #17261d;
+    --ok-line: #1f3a28;
+    --fix: #f08a8a;
+    --fg-soft: #c7cdd6;
+    --link: #8aa6f8;
+    --panel: #161a20;
+    --code-bg: #262c35;
+    --del-bg: #3a2023;
+    --ins-bg: #1b3524;
+    --track: #2a313b;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --glow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  }
+}
+
+body.addin header, body.addin main { padding: 0 14px; max-width: none; }
+body.addin .small { font-size: 12px; }
+body.addin p { margin: 4px 0; }
+body.addin a { color: var(--link); }
+
+/* Knöpfe: rund und ruhig, der Hauptknopf mit einem Verlauf von Blau nach Indigo. */
+body.addin button {
+  font: inherit; font-size: 13px; font-weight: 500; line-height: 18px; cursor: pointer;
+  padding: 5px 12px; border-radius: 10px; border: 1px solid var(--line-strong);
+  background: var(--card); color: var(--fg); transition: background 0.12s, border-color 0.12s, box-shadow 0.12s;
+}
+body.addin button:hover:not(:disabled) { background: var(--hover); border-color: var(--grid); }
+body.addin button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+body.addin button.addin-primary {
+  border: 0; padding: 6px 16px; font-weight: 600; color: var(--on-accent);
+  background: linear-gradient(135deg, var(--btn-1), var(--btn-2)); box-shadow: var(--glow);
+}
+body.addin button.addin-primary:hover:not(:disabled) { background: linear-gradient(135deg, var(--btn-1), var(--btn-1));
+  box-shadow: var(--glow); filter: brightness(1.06); }
+body.addin button.addin-primary:disabled { box-shadow: none; }
+
+/* --- Kopf: Marke, Mappe · Blatt, Neu prüfen --- */
+.addin-head { padding-top: 12px !important; padding-bottom: 2px !important; }
+.addin-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.addin-brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.addin-logo { flex: none; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 9px; color: #fff;
+  font-size: 15px; font-weight: 700; background: linear-gradient(135deg, #2563eb, #4f46e5);
+  box-shadow: 0 3px 8px rgba(37, 99, 235, 0.3); }
+.addin-brand-text { display: flex; flex-direction: column; min-width: 0; }
+.addin-app { font-size: 14.5px; font-weight: 700; line-height: 18px; letter-spacing: -0.01em; }
+body.addin .addin-where { margin: 0; min-width: 0; color: var(--muted); font-size: 11.5px; line-height: 15px; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap; }
+.addin-where:empty { display: none; }
+.addin-sheetname::before { content: "·"; margin: 0 5px; }
+body.addin button.addin-icon { flex: none; display: grid; place-items: center; width: 32px; height: 32px; padding: 0;
+  border-radius: 10px; color: var(--fg-soft); box-shadow: var(--shadow); }
+.addin-icon svg { width: 16px; height: 16px; }
+body.addin button.addin-icon:disabled svg { animation: addin-spin 0.9s linear infinite; }
+@keyframes addin-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { body.addin button.addin-icon:disabled svg { animation: none; } }
+
+/* --- Ergebnis: Zahl, Balken nach Stufe, was nachgerechnet ist --- */
+.addin-summary { margin: 12px 0 0; padding: 14px 14px 12px; border: 1px solid var(--border); border-radius: 16px;
+  background: var(--card); box-shadow: var(--shadow); }
+.addin-score { display: flex; align-items: center; gap: 12px; }
+.addin-score-text { min-width: 0; flex: 1; }
+.addin-big { flex: none; font-size: 34px; font-weight: 700; line-height: 1; letter-spacing: -0.03em; }
+.addin-big.ok { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; font-size: 18px;
+  color: var(--ok); background: var(--ok-soft); border: 1px solid var(--ok-line); }
+.addin-big:empty { display: none; }
+.addin-label { display: block; font-size: 14px; font-weight: 600; line-height: 1.3; }
+.addin-label:empty { display: none; }
+body.addin .addin-verdict { margin: 0; font-size: 14.5px; font-weight: 600; line-height: 1.35; letter-spacing: -0.005em; }
+.addin-verdict:empty { display: none; }
+/* Mit Zahl und Balken sagt die Legende dasselbe: Der Satz bleibt dann nur für Vorleseprogramme. */
+body.addin .addin-verdict.addin-quiet { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);
+  white-space: nowrap; }
+body.addin .addin-state { margin: 6px 0 0; font-size: 12.5px; }
+.addin-state:empty { display: none; }
+/* Was nachgerechnet ist und wann, je in einer Zeile: Im schmalen Fenster bricht sonst die Uhrzeit mitten durch. */
+body.addin .addin-meta { display: flex; flex-direction: column; margin: 2px 0 0; color: var(--muted); font-size: 12px; line-height: 1.4; }
+.addin-meta span:empty { display: none; }
+.addin-levels { margin: 12px 0 0; }
+.addin-levels[hidden] { display: none; }
+.addin-track { display: flex; gap: 3px; height: 6px; }
+.addin-seg { min-width: 6px; border-radius: 3px; background: var(--info); }
+.addin-seg.fehler { background: var(--fehler); }
+.addin-seg.pruefen { background: var(--pruefen); }
+.addin-seg.done { background: var(--ok); }
+.addin-legend { display: flex; flex-wrap: wrap; gap: 2px 12px; margin: 7px 0 0; font-size: 12px; color: var(--muted); }
+.addin-legend span::before { content: ""; display: inline-block; width: 7px; height: 7px; margin: 0 5px 1px 0; border-radius: 50%;
+  background: var(--info); }
+.addin-legend .fehler { color: var(--fehler); }
+.addin-legend .fehler::before { background: var(--fehler); }
+.addin-legend .pruefen { color: var(--pruefen); }
+.addin-legend .pruefen::before { background: var(--pruefen); }
+.addin-legend .done { color: var(--ok); }
+.addin-legend .done::before { background: var(--ok); }
+
+/* --- Reiter als Umschalter --- */
+.addin-tabs { display: flex; gap: 2px; margin: 12px 0 4px; padding: 3px; border-radius: 12px; background: var(--track); }
+body.addin .addin-tabs button { flex: 1 1 auto; border: 0; border-radius: 9px; background: none; color: var(--muted); padding: 5px 6px;
+  font-size: 12.5px; font-weight: 500; white-space: nowrap; box-shadow: none; }
+body.addin .addin-tabs button:hover:not(:disabled) { background: none; color: var(--fg); }
+/* Mit der Zelle im Namen („Herleitung AB123“) gibt dieser Reiter nach, damit alle in eine Zeile passen. */
+body.addin .addin-tabs #tab-why { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+body.addin .addin-tabs button[aria-selected="true"] { color: var(--fg); font-weight: 600; background: var(--card);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08), 0 1px 1px rgba(15, 23, 42, 0.04); }
+.addin-count { margin-left: 5px; color: var(--muted); font-weight: 500; font-size: 11.5px; }
+
+.addin-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0 12px; }
+
+/* --- Die Zelle als Kachel, getönt nach Stufe --- */
+.addin-ref-cell, .addin-cell, .addin-chip {
+  position: relative; display: inline-block; font: 600 11.5px/18px var(--mono); padding: 0 6px; border: 1px solid var(--grid);
+  border-radius: 6px; background: var(--card); color: var(--fg); white-space: nowrap; vertical-align: 1px;
+}
+.addin-ref-cell { color: var(--info); background: var(--info-soft); border-color: transparent; }
+.addin-ref-cell.fehler { color: var(--fehler); background: var(--fehler-soft); }
+.addin-ref-cell.pruefen { color: var(--pruefen); background: var(--pruefen-soft); }
+.addin-cell, .addin-chip { padding: 0 5px; color: var(--muted); font-weight: 500; }
+.addin-chip[tabindex] { cursor: pointer; }
+.addin-chip[tabindex]:hover, .addin-chip[tabindex]:focus { color: var(--fg); border-color: var(--accent); outline: none; }
+
+/* Zellen im Text: anklickbar wie ein Link, markieren sich in Excel. */
+.addin-ref { font-weight: 600; color: var(--link); cursor: pointer; border-radius: 3px; }
+.addin-ref:hover, .addin-ref:focus { text-decoration: underline; text-underline-offset: 2px; outline: none; }
+/* Formeln im Satz wie in der Bearbeitungsleiste. */
+.addin-inline { font: 0.88em/1 var(--mono); padding: 2px 5px; border-radius: 5px; background: var(--code-bg); color: var(--fg);
+  overflow-wrap: anywhere; }
+.addin-num { font-weight: 600; color: var(--fg); }
+
+/* --- Die Hinweise: gruppiert nach Stufe, je Hinweis eine Karte --- */
+.addin-hints { list-style: none; margin: 0; padding: 0; }
+.addin-group { display: flex; align-items: center; gap: 0; margin: 16px 2px 6px; padding: 0; font-size: 11px; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.addin-group::before { content: ""; width: 7px; height: 7px; margin-right: 7px; border-radius: 50%; background: var(--info); }
+.addin-group.fehler::before { background: var(--fehler); }
+.addin-group.pruefen::before { background: var(--pruefen); }
+.addin-group .addin-count { letter-spacing: 0; }
+body.addin p.addin-group { margin: 16px 2px 6px; }
+.addin-hint { margin: 0 0 8px; padding: 12px 12px 12px; border: 1px solid var(--border); border-radius: 14px; background: var(--card);
+  box-shadow: var(--shadow); transition: border-color 0.12s; }
+.addin-hint[tabindex], .addin-other[tabindex] { cursor: pointer; }
+.addin-hint[tabindex]:hover { border-color: var(--grid); }
+.addin-other[tabindex]:hover { background: var(--hover); }
+.addin-hint[tabindex]:focus-visible, .addin-other[tabindex]:focus-visible { outline: 2px solid var(--accent); outline-offset: -1px; }
+.addin-hint:focus { outline: none; }
+body.addin .addin-text { margin: 0; overflow-wrap: anywhere; }
+body.addin .addin-tip { margin: 8px 0 0; color: var(--muted); font-size: 12.5px; overflow-wrap: anywhere; }
+.addin-hint-head { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; }
+.addin-hint-head .addin-ref-cell { flex: none; display: grid; place-items: center; min-width: 38px; height: 38px; max-width: 96px;
+  padding: 0 6px; border-radius: 10px; overflow: hidden; text-overflow: ellipsis; vertical-align: 0; }
+.addin-hint-name { display: flex; flex-direction: column; min-width: 0; }
+.addin-title { font-size: 14px; font-weight: 650; line-height: 19px; color: var(--fg); letter-spacing: -0.01em; }
+.addin-place { font-size: 12px; line-height: 16px; color: var(--muted); overflow-wrap: anywhere; }
+.addin-hint-head + .addin-text { color: var(--fg-soft); }
+/* Ein Hinweis ohne Titel: die Zelle vorne im Satz. */
+.addin-hint > .addin-text > .addin-ref-cell:first-child { margin-right: 2px; }
+
+/* Was in der Zelle steht und was richtig wäre: untereinander, die Unterschiede markiert. */
+.addin-compare { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 10px 0 0; padding: 9px 12px;
+  border: 1px solid var(--border); border-radius: 12px; background: var(--panel); }
+.addin-cmp-row { display: contents; }
+.addin-cmp-label { font-size: 11px; line-height: 19px; font-weight: 600; color: var(--muted); white-space: nowrap; }
+.addin-cmp-formula, .addin-cmp-value { font: 12px/19px var(--mono); color: var(--fg); overflow-wrap: anywhere; min-width: 0; }
+.addin-cmp-row.now .addin-cmp-value { color: var(--fehler); }
+.addin-cmp-row.want .addin-cmp-value { color: var(--ok); font-weight: 650; }
+.addin-cmp-gap { grid-column: 1 / -1; height: 1px; margin: 3px 0; background: var(--border); }
+.addin-compare mark { color: inherit; border-radius: 3px; padding: 0 1px; }
+mark.addin-del { background: var(--del-bg); color: var(--fehler); text-decoration: line-through; text-decoration-thickness: 1px; }
+mark.addin-ins { background: var(--ins-bg); color: var(--ok); font-weight: 600; }
+.addin-fix-shown .addin-fix-foot { margin-top: 0; }
+.addin-kind { font-size: 12px; font-weight: 600; color: var(--info); }
+.addin-kind.fehler { color: var(--fehler); }
+.addin-kind.pruefen { color: var(--pruefen); }
+
+/* Die Korrektur wie in der Bearbeitungsleiste von Excel. */
+.addin-fix { margin-top: 10px; }
+.addin-fx { display: flex; align-items: baseline; gap: 0; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--card);
+  overflow: hidden; }
+.addin-fx-mark { flex: none; align-self: stretch; padding: 4px 8px; border-right: 1px solid var(--border); color: var(--muted);
+  background: var(--panel); font: italic 13px/18px Georgia, "Times New Roman", serif; }
+.addin-fx code, .addin-fx-text { flex: 1; min-width: 0; padding: 4px 9px; font: 12px/18px var(--mono); color: var(--fg); overflow-wrap: anywhere; }
+.addin-fx-text { font-family: inherit; color: var(--muted); }
+.addin-fix-foot { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; margin-top: 10px; }
+/* „Passt so“: leise, rechts, damit „Einsetzen“ der Hauptknopf bleibt. */
+.addin-hint-foot { display: flex; justify-content: flex-end; margin-top: 6px; }
+.addin-fix-foot .addin-passt { margin-left: auto; }
+body.addin button.addin-passt { padding: 4px 10px; font-size: 12.5px; font-weight: 500; color: var(--muted); background: transparent;
+  border-color: transparent; box-shadow: none; }
+body.addin button.addin-passt:hover:not(:disabled) { color: var(--fg); background: var(--hover); border-color: var(--line-strong); }
+.addin-passt-note { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; justify-content: space-between;
+  margin: 0 0 8px; padding: 9px 12px; border: 1px dashed var(--line-strong); border-radius: 12px; }
+/* Pivot, Diagramme, eigene Regeln: nur ein Knopf mit Satz. */
+.addin-act { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; margin-top: 10px; }
+
+/* Alle einsetzen und was schon eingesetzt ist */
+.addin-all { display: flex; flex-direction: column; align-items: stretch; gap: 6px; margin: 12px 0 2px; }
+body.addin .addin-all button.addin-primary { width: 100%; padding: 9px 16px; font-size: 13.5px; border-radius: 12px; }
+.addin-all .sub { font-size: 11.5px; text-align: center; }
+.addin-all[hidden] { display: none; }
+.addin-done { margin: 12px 0 0; padding: 4px 12px; border: 1px solid var(--ok-line); border-radius: 12px; background: var(--ok-soft); }
+.addin-done[hidden] { display: none; }
+.addin-done-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 6px 0; }
+.addin-done-row + .addin-done-row { border-top: 1px solid var(--ok-line); }
+.addin-done-row > span { min-width: 0; overflow-wrap: anywhere; }
+.addin-done-row > span::before { content: "✓"; color: var(--ok); font-weight: 700; margin-right: 6px; }
+body.addin .addin-done-row button { padding: 3px 10px; font-size: 12px; flex: none; border-radius: 8px; }
+/* Ältere Korrekturen zugeklappt: Oben bleibt nur die letzte, der Rest auf Klick. */
+.addin-done-more { border-top: 1px solid var(--ok-line); }
+.addin-done-more > summary { cursor: pointer; list-style: none; padding: 6px 0; color: var(--muted); }
+.addin-done-more > summary::-webkit-details-marker { display: none; }
+.addin-done-more > summary::before { content: "›"; display: inline-block; width: 12px; margin-right: 2px; text-align: center;
+  transition: transform 0.12s; transform-origin: 50% 50%; }
+.addin-done-more[open] > summary::before { transform: rotate(90deg); }
+.addin-done-more > .addin-done-row { border-top: 1px solid var(--ok-line); }
+.addin-done-more { max-height: 40vh; overflow-y: auto; }
+
+/* --- Aufklappbare Teile als Karten --- */
+.addin-box { margin: 8px 0 0; padding: 10px 12px; border: 1px solid var(--border); border-radius: 14px; background: var(--card); }
+.addin-box[hidden] { display: none; }
+.addin-box summary { cursor: pointer; font-weight: 600; list-style: none; }
+.addin-box summary::-webkit-details-marker { display: none; }
+details.addin-box > summary::before { content: "›"; display: inline-block; width: 12px; color: var(--muted); font-weight: 400;
+  transition: transform 0.12s; transform-origin: 3px 55%; }
+details.addin-box[open] > summary::before { transform: rotate(90deg); }
+details.addin-box > summary { display: flex; gap: 4px; }
+details.addin-box > summary > span:first-child { flex: 1; }
+.addin-box ul { padding-left: 18px; margin: 6px 0; }
+#page-hints > details.addin-box:first-of-type, .addin-others-box + details.addin-box { margin-top: 14px; }
+.addin-others-box { padding: 0; border: 0; background: none; }
+.addin-driver { margin-top: 8px; }
+.addin-box .addin-others { list-style: none; margin: 0; padding: 0; border: 1px solid var(--border); border-radius: 14px;
+  background: var(--card); overflow: hidden; }
+.addin-other { display: flex; justify-content: space-between; gap: 8px; padding: 8px 12px; border-bottom: 1px solid var(--border); }
+.addin-other:last-child { border-bottom: 0; }
+.addin-bad { color: var(--fehler); }
+.addin-good { color: var(--ok); }
+
+/* --- Herleitung --- */
+.addin-why-title { font-size: 15px; margin: 10px 0 4px; }
+.addin-why-head { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted);
+  margin: 16px 0 6px; }
+.addin-formula { font: 12px var(--mono); overflow-wrap: anywhere; }
+p.addin-formula { padding: 6px 10px; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--card); }
+.addin-rows { margin: 4px 0; padding: 8px 10px; border-left: 3px solid var(--accent); border-radius: 0 10px 10px 0; background: var(--accent-soft); }
+.addin-tree { list-style: none; margin: 0; padding: 0; }
+.addin-tree .addin-tree { padding-left: 14px; border-left: 1px solid var(--line-strong); margin-left: 8px; }
+.addin-node { display: flex; align-items: flex-start; gap: 2px; }
+body.addin .addin-toggle { width: 18px; flex: none; padding: 4px 0 0; border: 0; background: none; color: var(--muted); font-size: 12px;
+  box-shadow: none; }
+.addin-row { display: flex; flex: 1; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; padding: 4px 8px; border-radius: 8px; min-width: 0; }
+.addin-row[tabindex] { cursor: pointer; }
+.addin-row[tabindex]:hover, .addin-row[tabindex]:focus { background: var(--card); outline: none; box-shadow: var(--shadow); }
+.addin-row.bad { background: var(--fehler-soft); }
+.addin-name { color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }
+.addin-value { margin-left: auto; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.addin-note { margin: 0 0 2px 26px; overflow-wrap: anywhere; }
+
+/* --- Datei --- */
+.addin-drop { position: relative; display: flex; flex-direction: column; gap: 4px; padding: 18px 14px; margin: 10px 0 8px;
+  border: 1.5px dashed var(--line-strong); border-radius: 14px; background: var(--card); cursor: pointer; text-align: center; }
+.addin-drop:hover, .addin-drop:focus-within, .addin-drop.over { border-color: var(--accent); border-style: solid; background: var(--accent-soft); }
+.addin-drop input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.addin-sheet { font-size: 13.5px; margin: 16px 0 0; padding-bottom: 4px; border-bottom: 1px solid var(--line-strong); }
+.addin-cells { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+
+/* --- Mappe --- */
+.addin-book-head { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted);
+  margin: 18px 2px 6px; }
+.addin-result-head { display: flex; flex-wrap: wrap; gap: 2px 8px; align-items: baseline; }
+.addin-result-head .addin-value { font-weight: 600; }
+.addin-hint.fehler .addin-result-head .addin-value { color: var(--fehler); }
+.addin-box details { margin: 0; }
+.addin-part { margin: 8px 0 0; padding-top: 6px; border-top: 1px solid var(--border); }
+.addin-part:first-of-type { border-top: 0; }
+
+/* --- Eigene Regeln --- */
+.addin-rules { list-style: none; margin: 6px 0 0; padding: 0; }
+.addin-rule { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; padding: 8px 0;
+  border-top: 1px solid var(--border); }
+.addin-rule:first-child { border-top: 0; }
+.addin-rule-text { min-width: 0; overflow-wrap: anywhere; }
+.addin-rule-bar { display: flex; flex-direction: column; gap: 4px; flex: none; }
+body.addin .addin-rule-bar button { padding: 3px 10px; font-size: 12px; border-radius: 8px; }
+.addin-rule-form { margin: 8px 0 0; padding-top: 8px; border-top: 1px solid var(--border); }
+.addin-rule-form[hidden] { display: none; }
+.addin-rule-title { font-size: 15px; overflow-wrap: anywhere; }
+.addin-field { display: flex; flex-direction: column; gap: 3px; margin: 8px 0 0; color: var(--muted); font-size: 12px; min-width: 0; }
+.addin-field input, .addin-field select { font: inherit; font-size: 13.5px; color: var(--fg); background: var(--card); padding: 6px 9px;
+  border: 1px solid var(--line-strong); border-radius: 9px; width: 100%; box-sizing: border-box; min-width: 0; }
+.addin-field input:focus, .addin-field select:focus { outline: none; border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent); }
+.addin-pair { display: flex; gap: 8px; }
+.addin-pair > * { flex: 1 1 0; }
+.addin-pair[hidden], #rule-dates[hidden] { display: none; }
+.addin-check { display: flex; gap: 6px; align-items: baseline; margin: 8px 0 0; }
+.addin-rule-form .sub.small { margin: 2px 0 0; }
+
+/* --- Fuß --- */
+.addin-foot { margin: 16px 2px 20px; }
+body.addin .addin-foot p { font-size: 11.5px; line-height: 1.5; }
+/* Was verborgen ist, bleibt verborgen, auch wenn eine Regel oben „display“ setzt. */
+body.addin [hidden] { display: none !important; }
+
+/* Zwei Korrekturen zur Wahl: untereinander, mit einer kurzen Zeile darüber. */
+.addin-choices { margin-top: 10px; }
+.addin-choices-head { margin: 0 0 4px; font-size: 12px; color: var(--fg-soft); }
+.addin-choices .addin-fix + .addin-fix { margin-top: 8px; }
+
+/* --- Über Gegenprobe: beim ersten Öffnen und über „i“ --- */
+.addin-about { position: fixed; inset: 0; z-index: 50; display: flex; align-items: flex-start; justify-content: center;
+  padding: 12px; overflow-y: auto; background: rgba(15, 23, 42, 0.35); }
+.addin-about[hidden] { display: none; }
+.addin-about-card { width: 100%; max-width: 420px; padding: 16px 16px 12px; border-radius: 14px; background: var(--card);
+  color: var(--fg); box-shadow: var(--shadow); font-size: 13px; line-height: 1.45; }
+.addin-about-title { margin: 0 0 6px; font-size: 16px; line-height: 1.3; }
+.addin-about-card h3 { margin: 12px 0 4px; font-size: 13px; }
+.addin-about-card p, .addin-about-card ul { margin: 0 0 6px; color: var(--fg-soft); }
+.addin-about-card ul { padding-left: 18px; }
+.addin-about-card li { margin-bottom: 4px; }
+.addin-about-card .addin-bar { justify-content: flex-end; margin-top: 10px; }
+.addin-actions { display: flex; flex: none; gap: 6px; }
+.addin-lang { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 10px 0 4px; }
+.addin-lang .sub { margin-right: 4px; }
+body.addin .addin-lang button { padding: 4px 10px; font-size: 12px; }
+body.addin .addin-lang button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }

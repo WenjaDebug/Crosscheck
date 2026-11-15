@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gegenprobe Prüfer</title>
+  <link rel="icon" href="/addin/icon-32.png">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <h1>Gegenprobe Prüfer</h1>
+    <p class="sub">Rechnet deine Excel-Mappen nach und sagt, was nicht aufgeht. Ohne KI und ohne Internet: Deine Daten
+      bleiben auf diesem Rechner.</p>
+  </header>
+
+  <main>
+    <section class="panel start-card">
+      <h2>In Excel prüfen</h2>
+      <p id="addin-state" class="status">Ich schaue nach, ob das Excel-Fenster eingerichtet ist …</p>
+      <ul class="start-list">
+        <li>Hinweise auf Fehler in Formeln und Daten, ein Klick markiert die Zelle in Excel.</li>
+        <li><strong>Herleitung:</strong> Woraus eine Zahl entsteht, bis zur Ursache, auch über Blätter und SVERWEIS.</li>
+        <li><strong>Datei:</strong> Eine frühere Version vergleichen (was ist anders und warum) oder eine Datei prüfen, ohne sie zu öffnen.</li>
+        <li><strong>Prüfbericht</strong> zum Drucken oder als PDF, auch ohne Daten zum Weitergeben.</li>
+      </ul>
+      <p class="sub">Zum Ausprobieren: <a href="/demo/pruefer-uebung.xlsx" download>Übungsmappe mit eingebauten Fehlern</a>
+        (erfundene Daten) laden und in Excel öffnen.</p>
+    </section>
+
+    <section class="panel start-card">
+      <h2>Eine Datei prüfen</h2>
+      <label id="drop" class="start-drop">
+        <strong>Excel-Datei hierher ziehen</strong>
+        <span class="sub">oder hier klicken und wählen (.xlsx). Ich prüfe alle Blätter, ohne die Datei zu öffnen.</span>
+        <input id="file" type="file" accept=".xlsx,.xlsm,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+      </label>
+      <p id="file-state" class="status" aria-live="polite"></p>
+      <div id="file-result"></div>
+      <div id="file-report" class="start-bar" hidden>
+        <span class="sub">Prüfbericht:</span>
+        <button id="file-plain" type="button">Ohne Daten</button>
+        <button id="file-full" type="button">Mit Werten</button>
+        <span id="file-report-state" class="sub" aria-live="polite"></span>
+      </div>
+      <p class="sub">Die Datei bleibt im Arbeitsspeicher, sie wird nicht gespeichert und geht nicht ins Internet.</p>
+    </section>
+
+    <p class="sub">Lieber im Browser neben Excel? Der <a href="/pruefer.html" target="_blank">Excel-Prüfer im Browser</a>
+      liest die offene Mappe alle paar Sekunden mit.</p>
+
+    <details class="panel more" id="grenzen">
+      <summary>Grenzen und Datenschutz</summary>
+      <p class="sub"><strong>Gegenprobe kann sich irren.</strong> Es rechnet nach und sucht typische Fehler, kann aber
+        Fehler übersehen und auch etwas melden, das richtig ist. Es ersetzt deine eigene Kontrolle nicht: Für deine Zahlen
+        und Entscheidungen bleibst du verantwortlich.</p>
+      <p class="sub"><strong>Deine Daten bleiben bei dir.</strong> Alles läuft auf diesem Rechner, ohne KI, ohne Konto
+        und ohne Internet. Gegenprobe speichert keine Inhalte deiner Mappen, und das Protokoll enthält keine Zellen, Namen
+        oder Werte. Nur drei Dinge bleiben, alle von dir ausgelöst: „Passt so“ in der Mappe selbst (als Prüfsumme ohne
+        Inhalt), eigene Spaltenregeln auf diesem Rechner und ein Prüfbericht, den Gegenprobe nach einem Tag löscht.</p>
+      <p class="sub"><strong>Ohne Gewähr.</strong> Gegenprobe ist kostenlos und quelloffen (MIT-Lizenz) und wird ohne
+        jede Gewähr bereitgestellt.</p>
+    </details>
+
+    <details class="panel more">
+      <summary>Mehr</summary>
+      <p class="sub">Was Gegenprobe sonst noch kann.</p>
+      <ul class="start-links">
+        <li><a href="/helfer.html" target="voiceagent-helfer" data-popup>Excel-Helfer</a>: Pivot-Übersicht aus einem Satz, Tabellen aus Dateien einfügen.</li>
+        <li><a href="/zustand.html">Zustand</a>: ob alles bereit ist, und ein Fehlerbericht zum Weitergeben.</li>
+      </ul>
+    </details>
+  </main>
+
+  <script src="/start.js"></script>
+  <script src="/popup.js"></script>
+</body>
+</html>

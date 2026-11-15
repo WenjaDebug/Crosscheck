@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Excel-Helfer · Gegenprobe</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="helper">
+  <header>
+    <h1>Excel-Helfer</h1>
+    <p class="sub">Schreib, was ich in Excel machen soll, oder gib mir eine Datei mit einer Tabelle. Ich zeige
+      dir zuerst, was herauskommt, und schreibe erst nach deinem Klick, immer in ein neues Blatt.</p>
+  </header>
+
+  <main>
+    <form id="ask" class="panel">
+      <label for="text" class="sub">Was soll ich machen?</label>
+      <textarea id="text" rows="3" placeholder="Zum Beispiel: Summe der Sitze pro Partei"></textarea>
+      <div class="helper-buttons">
+        <button id="show" type="submit" class="primary">Vorschau</button>
+      </div>
+      <p class="sub">Beispiele, tipp zum Übernehmen:</p>
+      <div id="examples" class="chips"></div>
+    </form>
+
+    <section class="panel" id="file-box">
+      <label for="file" class="sub">Oder eine Tabelle aus einer Datei in Excel einfügen (CSV, Excel, Word, PDF), auch
+        per Hineinziehen. Die Datei bleibt auf diesem Rechner.</label>
+      <input id="file" type="file" accept=".csv,.tsv,.txt,.xlsx,.xlsm,.docx,.pdf">
+      <select id="tables" hidden></select>
+    </section>
+
+    <p id="state" class="status" aria-live="polite">Klick in Excel auf das Blatt mit deinen Daten.</p>
+
+    <section id="plan" class="panel" hidden>
+      <p id="plan-text"></p>
+      <ul id="plan-notes" class="sub"></ul>
+      <div class="helper-table-box"><table id="plan-table" class="helper-table"></table></div>
+      <label id="real-box" class="toggle" hidden><input id="real" type="checkbox"> Als echte Pivot-Tabelle von Excel
+        (Versuch)</label>
+      <p id="real-note" class="sub" hidden>Mit Formeln rechnet die Übersicht von selbst mit, und ich kann jede Zahl
+        nachprüfen. Eine echte Pivot-Tabelle musst du nach Änderungen selbst aktualisieren.</p>
+      <button id="run" type="button" class="primary">In Excel schreiben</button>
+    </section>
+
+    <section id="done" class="panel" hidden>
+      <p id="done-text"></p>
+    </section>
+
+    <p class="sub small">Deine Daten bleiben auf diesem Rechner. Nur wenn ich einen Satz nicht verstehe und du eine KI
+      eingerichtet hast, bekommt sie den Satz und die Spaltennamen, nie die Zahlen. Gesprochenes erkennt Gegenprobe
+      selbst, ohne Internet.</p>
+    <p class="sub small"><a href="/pruefer.html" target="_blank">Excel-Prüfer</a> · <a href="/" target="_blank">Gegenprobe</a></p>
+  </main>
+
+  <script src="/helfer.js"></script>
+</body>
+</html>

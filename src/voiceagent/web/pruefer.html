@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Excel-Prüfer · Gegenprobe</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <p class="back"><a href="/">← Zurück zum Start</a></p>
+    <h1>Excel-Prüfer</h1>
+    <p class="sub">Arbeite in Excel wie gewohnt. Gegenprobe liest die offene Mappe direkt mit und rechnet nach, was sich
+      nachrechnen lässt: Fehlerwerte, Summen, die eine Zeile auslassen oder nicht aufgehen, gerundete Werte, die zusammen
+      nicht mehr stimmen, feste Zahlen statt Formeln und abgetippte Zahlen statt Zellbezügen. Dazu prüft er die ganze
+      Rechenkette: Formeln, die aus dem Muster ihrer Spalte fallen, Kreisbezüge, doppelt gezählte Zwischensummen, Bezüge
+      auf leere Zellen, Werte, die Excel anders zeigt, als die Formel ergibt, Ausreißer, doppelte Namen und Anteile, die
+      nicht 100 % ergeben. Und er zeigt, von welchen Eingaben deine Ergebnisse wirklich abhängen. Ohne KI und ohne
+      Internet: Deine Daten bleiben auf diesem Rechner.</p>
+  </header>
+
+  <main>
+    <section class="panel">
+      <p id="where" class="sub"></p>
+      <p id="state" class="status">Ich schaue nach Excel …</p>
+      <p class="sub">Soll ich selbst etwas in Excel machen, zum Beispiel eine Pivot-Tabelle? Öffne den
+        <a href="/helfer.html" target="voiceagent-helfer" data-popup>Excel-Helfer</a>, ein schmales Fenster neben Excel.</p>
+    </section>
+    <ul id="hints" class="rules"></ul>
+    <section id="drivers-box" class="panel" hidden>
+      <h2>Wovon deine Ergebnisse abhängen</h2>
+      <p class="sub">Für jedes Ergebnis habe ich jede Eingabe und jede feste Zahl in den Formeln um 1 % erhöht und die
+        ganze Rechnung neu gerechnet. Die Zahl sagt, um wie viel Prozent sich das Ergebnis dann ändert (Elastizität).
+        Was hier fehlt, hat auf das Ergebnis keinen Einfluss.</p>
+      <div id="drivers"></div>
+    </section>
+    <p id="stats" class="sub"></p>
+    <details class="panel">
+      <summary>Was ich sonst nachgerechnet habe</summary>
+      <ul id="overview"></ul>
+    </details>
+  </main>
+
+  <script src="/pruefer.js"></script>
+  <script src="/popup.js"></script>
+</body>
+</html>

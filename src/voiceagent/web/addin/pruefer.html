@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gegenprobe Prüfer</title>
+  <link rel="icon" href="/addin/icon-32.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/addin/addin.css">
+  <!-- Excel stellt die Verbindung zur Mappe nur über office.js von Microsoft her. Die Zellen gehen nur an Gegenprobe hier. -->
+  <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+</head>
+<body class="addin">
+  <header class="addin-head">
+    <div class="addin-top">
+      <div class="addin-brand">
+        <span class="addin-logo" aria-hidden="true">✓</span>
+        <div class="addin-brand-text">
+          <span class="addin-app">Gegenprobe</span>
+          <p id="where" class="addin-where"></p>
+        </div>
+      </div>
+      <div class="addin-actions">
+      <button id="about-open" class="addin-icon" type="button" title="Über Gegenprobe: Grenzen und Datenschutz"
+        aria-label="Über Gegenprobe" aria-haspopup="dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"
+          aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 7.5h.01"/></svg>
+      </button>
+      <button id="again" class="addin-icon" type="button" title="Neu prüfen" aria-label="Neu prüfen">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"
+          aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+      </button>
+      </div>
+    </div>
+    <div class="addin-summary">
+      <div class="addin-score">
+        <span id="count" class="addin-big" aria-hidden="true"></span>
+        <div class="addin-score-text">
+          <span id="count-label" class="addin-label" aria-hidden="true"></span>
+          <p id="verdict" class="addin-verdict" aria-live="polite"></p>
+          <p class="addin-meta"><span id="proof"></span><span id="when"></span></p>
+        </div>
+      </div>
+      <div id="levels" class="addin-levels" aria-hidden="true" hidden></div>
+      <p id="state" class="status addin-state" aria-live="polite">Ich verbinde mich mit Excel …</p>
+    </div>
+  </header>
+
+  <!-- Beim ersten Öffnen und über „i“: was Gegenprobe kann und nicht kann, und was mit den Daten geschieht. -->
+  <div id="about" class="addin-about" role="dialog" aria-modal="true" aria-labelledby="about-title" hidden>
+    <div class="addin-about-card">
+      <h2 id="about-title" class="addin-about-title">Bevor du loslegst</h2>
+      <h3>Gegenprobe kann sich irren</h3>
+      <p>Gegenprobe rechnet deine Mappe nach und sucht typische Fehler. Es kann Fehler übersehen und auch etwas melden,
+        das richtig ist. Es ersetzt deine eigene Kontrolle nicht: Für deine Zahlen und Entscheidungen bleibst du
+        verantwortlich. Schau dir jede Korrektur an, bevor du sie einsetzt. „Rückgängig“ nimmt sie wieder heraus.</p>
+      <h3>Deine Daten bleiben bei dir</h3>
+      <ul>
+        <li>Alles läuft auf diesem Rechner, ohne KI, ohne Konto und ohne Internet. Die Zellen gehen nur an Gegenprobe
+          hier, nie an einen Server. Aus dem Internet lädt Excel nur die Office-Bibliothek von Microsoft (office.js),
+          ohne deine Daten.</li>
+        <li>Gegenprobe speichert keine Inhalte deiner Mappen. Das Protokoll enthält keine Zellen, Namen oder Werte.</li>
+        <li>Nur drei Dinge bleiben, alle von dir ausgelöst: „Passt so“ steht in der Mappe selbst, als Prüfsumme ohne
+          Inhalt. Eigene Spaltenregeln liegen auf diesem Rechner. Einen Prüfbericht, den du anforderst, löscht
+          Gegenprobe nach einem Tag.</li>
+      </ul>
+      <h3>Ohne Gewähr</h3>
+      <p>Gegenprobe ist kostenlos und quelloffen (MIT-Lizenz) und wird ohne jede Gewähr bereitgestellt.</p>
+      <div class="addin-lang" role="group" aria-label="Sprache / Language">
+        <span class="sub small">Sprache / Language</span>
+        <button type="button" data-lang="de" data-en="Deutsch">Deutsch</button>
+        <button type="button" data-lang="en" data-en="English">English</button>
+      </div>
+      <p id="about-version" class="sub small">Gegenprobe __VERSION__</p>
+      <div class="addin-bar"><button id="about-ok" type="button">Verstanden</button></div>
+    </div>
+  </div>
+
+  <main>
+    <div class="addin-tabs" role="tablist">
+      <button id="tab-hints" type="button" role="tab" aria-selected="true" aria-controls="page-hints">Hinweise</button>
+      <button id="tab-why" type="button" role="tab" aria-selected="false" aria-controls="page-why">Herleitung</button>
+      <button id="tab-book" type="button" role="tab" aria-selected="false" aria-controls="page-book">Mappe</button>
+      <button id="tab-file" type="button" role="tab" aria-selected="false" aria-controls="page-file">Datei</button>
+    </div>
+
+    <section id="page-file" role="tabpanel" aria-labelledby="tab-file" hidden>
+      <label id="drop" class="addin-drop">
+        <strong>Excel- oder CSV-Datei hierher ziehen</strong>
+        <span class="sub small">oder hier klicken und wählen (.xlsx oder .csv). Eine frühere Version vergleiche ich mit der offenen Mappe:
+          was sich geändert hat und warum ein Ergebnis jetzt anders ist. Jede Datei kann ich auch prüfen, ohne sie zu öffnen,
+          eine CSV aus einem Export auf ihre Daten.</span>
+        <input id="file" type="file" accept=".xlsx,.xlsm,.csv,.tsv,.txt,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv">
+      </label>
+      <p id="file-name" class="sub small"></p>
+      <div class="addin-bar" id="file-bar" hidden>
+        <button id="file-compare" type="button">Mit offener Mappe vergleichen</button>
+        <button id="file-check" type="button" data-en="Check">Prüfen</button>
+      </div>
+      <p id="file-state" class="status" aria-live="polite"></p>
+      <div id="file-result"></div>
+      <div id="file-report" hidden>
+        <p class="sub small">Prüfbericht über diese Datei:</p>
+        <div class="addin-bar">
+          <button id="file-plain" type="button">Ohne Daten</button>
+          <button id="file-full" type="button">Mit Werten</button>
+        </div>
+        <p id="file-report-state" class="sub small" aria-live="polite"></p>
+      </div>
+      <p class="sub small">Die Datei liest Gegenprobe nur in den Arbeitsspeicher, sie wird nicht gespeichert und geht nicht ins Internet.</p>
+    </section>
+
+    <section id="page-book" role="tabpanel" aria-labelledby="tab-book" hidden>
+      <p id="book-state" class="sub small" aria-live="polite">Hier steht, was die ganze Mappe rechnet: woher die Daten
+        kommen, was jede gerechnete Spalte und jede Formel tut und woraus die Ergebnisse entstehen.</p>
+      <div id="book"></div>
+    </section>
+
+    <section id="page-why" role="tabpanel" aria-labelledby="tab-why" hidden>
+      <p id="why-empty" class="sub small">Markiere in Excel eine Zelle, dann zeige ich hier, woraus ihre Zahl entsteht und wohin sie fließt.</p>
+      <div id="why"></div>
+    </section>
+
+    <section id="page-hints" role="tabpanel" aria-labelledby="tab-hints">
+    <div id="done" class="addin-done" aria-live="polite" hidden></div>
+    <div id="all" class="addin-fix addin-all" hidden></div>
+    <ul id="hints" class="addin-hints"></ul>
+
+    <section id="others-box" class="addin-box addin-others-box" hidden>
+      <p class="addin-group">Auf den anderen Blättern</p>
+      <ul id="others" class="addin-others"></ul>
+    </section>
+
+    <details id="rules-box" class="addin-box">
+      <summary><span>Eigene Regeln je Spalte</span><span id="rules-count" class="sub small"></span></summary>
+      <p class="sub small">Leg fest, was in einer Spalte stehen darf, zum Beispiel Alter von 0 bis 120, kein Datum in der
+        Zukunft oder Pflichtfeld. Gegenprobe meldet jeden Verstoß mit Zelle und Grund, in jeder Mappe mit einer Spalte
+        dieses Namens. Die Regeln bleiben auf diesem Rechner.</p>
+      <ul id="rules" class="addin-rules"></ul>
+      <div class="addin-bar"><button id="rule-new" type="button">Regel für die markierte Spalte</button></div>
+      <p id="rules-state" class="sub small" aria-live="polite"></p>
+      <form id="rule-form" class="addin-rule-form" hidden>
+        <p class="addin-rule-title"><strong id="rule-column"></strong></p>
+        <p id="rule-now" class="sub small"></p>
+        <label class="addin-check"><input id="rule-required" type="checkbox"> Pflichtfeld: darf nicht leer sein</label>
+        <label class="addin-field">Art
+          <select id="rule-kind">
+            <option value="">beliebig</option>
+            <option value="zahl">Zahl</option>
+            <option value="ganz">ganze Zahl</option>
+            <option value="datum">Datum</option>
+            <option value="text">Text</option>
+          </select>
+        </label>
+        <div id="rule-numbers" class="addin-pair">
+          <label class="addin-field">von <input id="rule-min" type="text" inputmode="decimal" autocomplete="off"></label>
+          <label class="addin-field">bis <input id="rule-max" type="text" inputmode="decimal" autocomplete="off"></label>
+        </div>
+        <div id="rule-dates">
+          <div class="addin-pair">
+            <label class="addin-field">nicht vor dem <input id="rule-after" type="date"></label>
+            <label class="addin-field">nicht nach dem <input id="rule-before" type="date"></label>
+          </div>
+          <label class="addin-check"><input id="rule-future" type="checkbox"> nicht in der Zukunft</label>
+        </div>
+        <label class="addin-field">Erlaubte Werte
+          <input id="rule-values" type="text" placeholder="z. B. m, w, d" autocomplete="off"></label>
+        <p class="sub small">Mit Komma getrennt, Zahlen mit Komma mit Strichpunkt („0,5; 1; 1,5“). Groß und klein zählt.</p>
+        <label class="addin-check"><input id="rule-unique" type="checkbox"> Jeder Wert nur einmal (Fallnummer, Patienten-ID)</label>
+        <label class="addin-field">Muster
+          <input id="rule-pattern" type="text" placeholder="z. B. PAT-#####" autocomplete="off"></label>
+        <p class="sub small"># eine Ziffer, @ ein Buchstabe, ? ein Zeichen, * beliebig viele, alles andere genau so.</p>
+        <div class="addin-pair">
+          <label class="addin-field">Vergleich
+            <select id="rule-relation">
+              <option value="ge"></option>
+              <option value="le"></option>
+            </select>
+          </label>
+          <label class="addin-field">Spalte <select id="rule-other"></select></label>
+        </div>
+        <label class="addin-check"><input id="rule-only" type="checkbox"> <span id="rule-only-text">nur auf diesem Blatt</span></label>
+        <div class="addin-bar">
+          <button id="rule-save" type="submit">Speichern</button>
+          <button id="rule-cancel" type="button">Abbrechen</button>
+        </div>
+        <p id="rule-error" class="addin-bad small" aria-live="polite"></p>
+      </form>
+    </details>
+
+    <details id="drivers-box" class="addin-box" hidden>
+      <summary>Wovon die Ergebnisse abhängen</summary>
+      <p class="sub small">Jede Eingabe und jede feste Zahl in den Formeln um 1 % erhöht und alles neu gerechnet: So viel
+        Prozent ändert sich das Ergebnis.</p>
+      <div id="drivers"></div>
+    </details>
+
+    <details class="addin-box">
+      <summary>Was ich sonst nachgerechnet habe</summary>
+      <p id="stats" class="sub small"></p>
+      <ul id="overview" class="small"></ul>
+    </details>
+    </section>
+
+    <details class="addin-box">
+      <summary>Prüfbericht zum Weitergeben</summary>
+      <p class="sub small">Alle Blätter auf einer Seite. Sie geht im Browser auf; dort drucken oder als PDF sichern.</p>
+      <div class="addin-bar">
+        <button id="report-plain" type="button">Ohne Daten</button>
+        <button id="report-full" type="button">Mit Werten</button>
+      </div>
+      <p class="sub small">„Ohne Daten“ zeigt nur Art, Stufe und Zelle jedes Hinweises, ohne Werte, Namen, Blatt- und Mappennamen.
+        Den kannst du weitergeben, auch wenn in der Mappe Patientendaten stehen.</p>
+      <p id="report-state" class="sub small" aria-live="polite"></p>
+    </details>
+
+    <footer class="addin-foot">
+    <p class="sub small">Zum Ausprobieren: <a id="practice" href="/demo/pruefer-uebung.xlsx">Übungsmappe mit eingebauten Fehlern</a>
+      (erfundene Daten) in Excel öffnen.</p>
+    <p id="practice-state" class="sub small" aria-live="polite"></p>
+    <p class="sub small">Ohne KI und ohne Internet: Die Zellen gehen nur an Gegenprobe auf diesem Rechner, gespeichert
+      wird nichts davon (<a id="about-link" href="#">mehr dazu</a>). Ein Klick auf
+      einen Hinweis oder eine Zelle in der Herleitung oder unter Mappe markiert sie in Excel. Geändert wird nur, was du mit einem Knopf
+      wie „Einsetzen“ änderst, und „Rückgängig“ nimmt es wieder heraus („Aktualisieren“ rechnet eine Pivot-Tabelle nur
+      neu aus ihren Daten).</p>
+    </footer>
+  </main>
+
+  <script src="/addin/sprache.js"></script>
+  <script src="/addin/pruefer.js"></script>
+</body>
+</html>

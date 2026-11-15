@@ -1,0 +1,8 @@
+# Windows-Skripte brauchen Windows-Zeilenenden, die Mac-Skripte Unix-Zeilenenden.
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+*.sh text eol=lf
+*.command text eol=lf
+*.ttf binary
+# GitHub schreibt beim Packen einer ZIP Commit und Zeit hinein (update.py: Hinweis auf eine neuere Version).
+src/voiceagent/stand.txt export-subst

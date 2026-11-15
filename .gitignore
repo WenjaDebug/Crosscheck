@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# Lokale Daten (Aufnahmen, Work Maps, Modelle)
+data/
+models/
+
+# System
+.DS_Store
