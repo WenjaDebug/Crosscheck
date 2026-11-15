@@ -1012,7 +1012,7 @@ function allBar(sheet, count) {
     box.replaceChildren(...(allSaid ? [el("span", "sub small", allSaid)] : []));
     return;
   }
-  const button = el("button", "addin-primary", `Alle ${count} einsetzen`);
+  const button = el("button", "addin-primary", tr("Alle {0} einsetzen", count));
   button.type = "button";
   const note = el("span", "sub small", allSaid || tr("setzt die Korrekturen zusammen ein, nachgerechnet; ein Rückgängig nimmt alle zurück"));
   button.addEventListener("click", () => insertAll(sheet, button, note));

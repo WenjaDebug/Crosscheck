@@ -183,7 +183,8 @@ def slugs(markdown: str) -> set[str]:
     return found
 
 
-@pytest.mark.parametrize("name", ["README.md", "README.en.md", "docs/HILFE.md", "docs/HELP.md"])
+@pytest.mark.parametrize("name", ["README.md", "README.de.md", "docs/FEATURES.md", "docs/FUNKTIONEN.md", "docs/HILFE.md",
+                                  "docs/HELP.md"])
 def test_links_images_and_anchors_exist(name):
     path = ROOT / name
     text = path.read_text(encoding="utf-8")
@@ -199,10 +200,10 @@ def test_links_images_and_anchors_exist(name):
 
 
 def test_readmes_start_with_five_steps_and_a_small_picture():
-    for name, heading, picture in (("README.md", "## In 5 Schritten", "seitenfenster-de.png"),
-                                   ("README.en.md", "## In 5 steps", "seitenfenster-en.png")):
+    for name, heading, picture in (("README.md", "## Install in 5 steps", "seitenfenster-en.png"),
+                                   ("README.de.md", "## In 5 Schritten", "seitenfenster-de.png")):
         text = (ROOT / name).read_text(encoding="utf-8")
-        assert text.index(heading) < text.index("## Installation (macOS)") and picture in text
+        assert text.index(picture) < text.index(heading) and len(text.split()) < 900
         assert "docs/HILFE.md" in text or "docs/HELP.md" in text
         data = (ROOT / "docs" / "bilder" / picture).read_bytes()
         assert data.startswith(b"\x89PNG") and len(data) < 200_000

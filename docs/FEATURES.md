@@ -1,32 +1,10 @@
-# Gegenprobe
+# Crosscheck: everything in detail
+
+The short version with a picture is in the [README](../README.md).
 
 Gegenprobe ("cross-check") recalculates your Excel workbook itself and tells you what does not add up. It works without AI, without internet and without any key, and the data stays on your computer. That makes it a fit for sensitive data from hospitals, labs or accounting. On a Mac it sits as a side pane right inside Excel.
 
-## In 5 steps
 
-Free, no account, no Terminal skills needed. You need Excel on a Mac or on Windows (there Excel 2021, 2024 or Microsoft 365) and an internet connection once for the setup. Gegenprobe fetches the rest (Python and three small packages) by itself.
-
-<img src="docs/bilder/seitenfenster-en.png" width="350" align="right" alt="The Gegenprobe side panel on the right in Excel: 4 spots to look at, among them a sum that leaves out one row, with the recalculated fix =SUM(C3:C6) and an Apply button">
-
-**On a Mac**
-
-1. **Download:** on [github.com/WenjaDebug/Crosscheck](https://github.com/WenjaDebug/Crosscheck) click the green **Code** button, then **Download ZIP**. Safari unpacks the ZIP by itself; otherwise double-click it in your Downloads folder.
-2. **Put it in place:** drag the **VoiceAgent-main** folder into your home folder (Finder: **Go → Home**). Rename it now if you like, but do not move it later.
-3. **Set up:** double-click **ExcelAddin.command** in the folder. The first time, macOS will not open it because it comes from the internet: on macOS 15 and newer click **Done**, then **Open Anyway** at the bottom of **System Settings → Privacy & Security**; up to macOS 14 right-click the file → **Open**. A window opens and sets everything up. If Python is missing, it opens python.org and says what to do; then double-click again.
-4. **Confirm:** the Mac asks for your password once so that Excel trusts the side panel. At the end it says **Fertig. So öffnest du ihn** (done, here is how to open it).
-5. **In Excel:** quit Excel completely (Cmd-Q) and reopen it, then **Home → Add-ins → Gegenprobe Checker** at the far right. From then on the **Checker** button under **Home** is enough.
-
-**On Windows**
-
-1. **Download:** as on the Mac, **Code → Download ZIP**.
-2. **Unpack:** in Downloads, right-click **VoiceAgent-main.zip → Extract All…**, best into your user folder (`C:\Users\<your name>`). Double-clicking the ZIP does not unpack it.
-3. **Set up:** double-click **ExcelAddin.bat** in the unpacked folder. If Windows says "Windows protected your PC": **More info → Run anyway**. If Python is missing, it installs Python 3.13 by itself or opens python.org and says what to do.
-4. **Confirm:** Windows asks once in a **Security Warning** whether to trust the certificate "VoiceAgent lokal (nur dieser Rechner)": **Yes**. No admin rights needed.
-5. **In Excel:** quit Excel completely and reopen it; the **Checker** button is at the far right under **Home**.
-
-Prefer the browser to Excel (or have Excel 2016/2019 on Windows)? Double-click **VoiceAgent.command** or **VoiceAgent.bat** instead of ExcelAddin. **When something does not work:** [Help](docs/HELP.md), covering Python, security warnings, a missing button, a blank panel, new versions and uninstalling.
-
-<br clear="right">
 
 It reads the name of a figure ("Umsatz Ost", "Durchschnitt Umsatz Nord") or the headers of a cross table and works out which rows belong to it. When a formula is wrong, it names the part of the formula that causes it:
 - a condition too many or a wrong value;
@@ -37,7 +15,7 @@ It reads the name of a figure ("Umsatz Ost", "Durchschnitt Umsatz Nord") or the 
 
 It also gives the corrected formula, recalculated beforehand. It also checks the whole calculation chain, ranges that slide when copied down, rates and averages, financial models, data used for analyses, and differences to an earlier version of the workbook.
 
-*Deutsch: [README.md](README.md)*
+*Deutsch: [FUNKTIONEN.md](FUNKTIONEN.md)*
 
 > The side panel in Excel speaks German or English (it follows Excel, switchable under **i**). The findings themselves, the start page and the launch windows are still in German.
 
@@ -45,7 +23,7 @@ The project used to be called VoiceAgent and started as a voice assistant. Nothi
 
 ## Installation (macOS)
 
-**Easiest:** as above [in 5 steps](#in-5-steps). **ExcelAddin.command** sets everything up the first time and then the side panel in Excel; **VoiceAgent.command** sets everything up the first time and starts Gegenprobe in the browser. Both first look for a Python 3.10 or newer that is already there (from python.org, from Homebrew or otherwise on the PATH). They only ask macOS's own Python (`/usr/bin/python3`, usually 3.9) when the Command Line Tools are installed, so macOS does not offer to install them. Without a suitable Python they install Python 3.13 with Homebrew if it is there, otherwise they open python.org and say what to do. Then they create a private environment in the `.venv` folder and download the three packages (FastAPI, Uvicorn, pypdf). After that it just starts. Without internet on the first start they say so. The GitHub ZIP keeps the execute permission of the .command files (checked with `git archive`, which is how GitHub packs it). Gegenprobe does not get around macOS's block on files from the internet: you confirm it yourself once per file (see step 3).
+**Easiest:** as in the README [in 5 steps](../README.md#install-in-5-steps). **ExcelAddin.command** sets everything up the first time and then the side panel in Excel; **VoiceAgent.command** sets everything up the first time and starts Gegenprobe in the browser. Both first look for a Python 3.10 or newer that is already there (from python.org, from Homebrew or otherwise on the PATH). They only ask macOS's own Python (`/usr/bin/python3`, usually 3.9) when the Command Line Tools are installed, so macOS does not offer to install them. Without a suitable Python they install Python 3.13 with Homebrew if it is there, otherwise they open python.org and say what to do. Then they create a private environment in the `.venv` folder and download the three packages (FastAPI, Uvicorn, pypdf). After that it just starts. Without internet on the first start they say so. The GitHub ZIP keeps the execute permission of the .command files (checked with `git archive`, which is how GitHub packs it). Gegenprobe does not get around macOS's block on files from the internet: you confirm it yourself once per file (see step 3).
 
 **In Terminal:** Gegenprobe needs Python 3.10 or newer, 3.13 is recommended.
 
@@ -62,13 +40,13 @@ On Linux use `sudo apt install python3-venv` instead of `brew`.
 
 ## Installation (Windows)
 
-Windows 10 or 11, as above [in 5 steps](#in-5-steps): download the ZIP, unpack it with **Extract All…** and double-click **ExcelAddin.bat** (side panel in Excel) or **VoiceAgent.bat** (in the browser) in Explorer. The first start looks for a Python 3.10 or newer that is already there. A `python.exe` under `WindowsApps` does not count; it is only the shortcut to the Microsoft Store. Without one it installs Python 3.13 through winget, just for you and without admin rights. Without winget (older Windows 10), it opens python.org and says what to do. Then it sets up the packages; after that it just starts. If Windows says "Windows protected your PC", click **More info → Run anyway**. The folder may have spaces and umlauts in its name (`C:\Users\Jürg Müller\VoiceAgent-main`). If it is still inside the ZIP, the launch files say to unpack it first.
+Windows 10 or 11, as in the README [in 5 steps](../README.md#install-in-5-steps): download the ZIP, unpack it with **Extract All…** and double-click **ExcelAddin.bat** (side panel in Excel) or **VoiceAgent.bat** (in the browser) in Explorer. The first start looks for a Python 3.10 or newer that is already there. A `python.exe` under `WindowsApps` does not count; it is only the shortcut to the Microsoft Store. Without one it installs Python 3.13 through winget, just for you and without admin rights. Without winget (older Windows 10), it opens python.org and says what to do. Then it sets up the packages; after that it just starts. If Windows says "Windows protected your PC", click **More info → Run anyway**. The folder may have spaces and umlauts in its name (`C:\Users\Jürg Müller\Crosscheck-main`). If it is still inside the ZIP, the launch files say to unpack it first.
 
 ### Updates
 
 If you got Gegenprobe with `git clone`, updates come by themselves: **VoiceAgent.command** and **VoiceAgent.bat** fetch the newest version before every start and install new packages. Packages Gegenprobe no longer needs (such as the former speech recognition) are removed from `.venv` on the way. Without internet the current version simply starts. If you changed something in the folder yourself or are testing another branch, Gegenprobe leaves everything as it is and says so in Terminal. Switch it off with `VOICEAGENT_NO_UPDATE=1`.
 
-If you downloaded a ZIP, Gegenprobe never downloads code. At most once a day it asks GitHub at start, without an account, when the newest version was made, and says so if there is a newer one (in the window and under **Zustand**). GitHub writes where the ZIP comes from into `src/voiceagent/stand.txt` when it packs it. You download a new version as a ZIP again; [Help](docs/HELP.md#new-version) says how to put it in place of the old one. Offline or with `VOICEAGENT_NO_UPDATE=1` it does not ask.
+If you downloaded a ZIP, Gegenprobe never downloads code. At most once a day it asks GitHub at start, without an account, when the newest version was made, and says so if there is a newer one (in the window and under **Zustand**). GitHub writes where the ZIP comes from into `src/voiceagent/stand.txt` when it packs it. You download a new version as a ZIP again; [Help](HELP.md#new-version) says how to put it in place of the old one. Offline or with `VOICEAGENT_NO_UPDATE=1` it does not ask.
 
 ## Using it
 
@@ -92,7 +70,7 @@ The **Mappe** tab explains the whole workbook on one page, from the data to the 
 
 Under **Eigene Regeln je Spalte** (own rules per column) you decide what a column may contain: select a cell in the column, click **Regel für die markierte Spalte** and choose required, kind (number, whole number, date, text), from and to, not before or after a day, not in the future, allowed values ("m, w, d"), every value only once, a pattern ("PAT-####": # a digit, @ a letter) or a comparison with another column (discharge not before admission). The form shows what is in the column now. The rule applies in every workbook with a column of that name (or on one sheet only) and stays on the computer. Every violation is an error with its cell and reason, including values that are only written differently ("M" instead of "m", a trailing space), a number stored as text or a date without a date format. Clicking selects all the cells, **Regel ändern** opens the rule.
 
-For data analyses (cases, patients, measurements) it also checks: missing values per column and placeholders like "k.A.", codes like 999 or -99 for "unknown" that AVERAGE silently includes, impossible values (age over 120, negative length of stay, shares over 100 %, pulse, BMI, temperature), a discharge before the admission or a birth date in the future, duplicate case numbers and identical rows, two units in one column (1.72 next to 172, mmol/l next to mg/dl), AVERAGE, MEDIAN or COUNT over a range that leaves out the last rows, a denominator that slides when copied (C10 instead of C$10), and SUM or AVERAGE over a filtered table that still counts the hidden rows (use SUBTOTAL). It checks whether tests and intervals are set up right: T.TEST paired over two groups or unpaired over the same cases before and after, with equal variances where they are far apart, or one-sided without saying so; CONFIDENCE with 0.95 instead of 0.05, with the standard error instead of the standard deviation, or the normal distribution for few values; a hand-made confidence interval without the square root of n or with the wrong z. It gives the right p-value and says whether significance changes. The difference of two percentages under "Veränderung %" is percentage points, and it says so. An age computed by hand (days divided by 365 or 365.25, YEAR minus YEAR) is a year off around the birthday; it says in which rows and inserts DATEDIF. TODAY() in a table of cases with admission or discharge changes every day, and usually the age at admission or the stay until discharge is meant. Days "inclusive" without +1, "nights" with +1 and working days that count weekends are found too. It compares pivot tables with their data: one that was not refreshed after a change (with the numbers that are now wrong), a fixed source with more data below it, and "Anzahl von …" (count) where a blank cell made Excel count instead of sum. In charts it notices a series that stops before the end of the table, takes the total row along or is shifted against its labels. In the panel this works with "Aktualisieren", "Summe nehmen" and "Einsetzen". To try it out there is the practice workbook [pruefer-uebung.xlsx](src/voiceagent/web/demo/pruefer-uebung.xlsx) with invented data and planted mistakes (also linked at the bottom of the panel).
+For data analyses (cases, patients, measurements) it also checks: missing values per column and placeholders like "k.A.", codes like 999 or -99 for "unknown" that AVERAGE silently includes, impossible values (age over 120, negative length of stay, shares over 100 %, pulse, BMI, temperature), a discharge before the admission or a birth date in the future, duplicate case numbers and identical rows, two units in one column (1.72 next to 172, mmol/l next to mg/dl), AVERAGE, MEDIAN or COUNT over a range that leaves out the last rows, a denominator that slides when copied (C10 instead of C$10), and SUM or AVERAGE over a filtered table that still counts the hidden rows (use SUBTOTAL). It checks whether tests and intervals are set up right: T.TEST paired over two groups or unpaired over the same cases before and after, with equal variances where they are far apart, or one-sided without saying so; CONFIDENCE with 0.95 instead of 0.05, with the standard error instead of the standard deviation, or the normal distribution for few values; a hand-made confidence interval without the square root of n or with the wrong z. It gives the right p-value and says whether significance changes. The difference of two percentages under "Veränderung %" is percentage points, and it says so. An age computed by hand (days divided by 365 or 365.25, YEAR minus YEAR) is a year off around the birthday; it says in which rows and inserts DATEDIF. TODAY() in a table of cases with admission or discharge changes every day, and usually the age at admission or the stay until discharge is meant. Days "inclusive" without +1, "nights" with +1 and working days that count weekends are found too. It compares pivot tables with their data: one that was not refreshed after a change (with the numbers that are now wrong), a fixed source with more data below it, and "Anzahl von …" (count) where a blank cell made Excel count instead of sum. In charts it notices a series that stops before the end of the table, takes the total row along or is shifted against its labels. In the panel this works with "Aktualisieren", "Summe nehmen" and "Einsetzen". To try it out there is the practice workbook [pruefer-uebung.xlsx](../src/voiceagent/web/demo/pruefer-uebung.xlsx) with invented data and planted mistakes (also linked at the bottom of the panel).
 
 **Large workbooks** stay usable: the panel reads large sheets in chunks and shows how far it is. A sheet that has not changed is not sent again, and Gegenprobe checks other large sheets in the background while you change nothing ("wird noch geprüft", still being checked). It reads up to 500,000 cells per sheet and 1.5 million in the whole workbook, the active sheet first. If a sheet is larger, it reads whole rows up to that point and says up to which row. About formulas that calculate with the rows below, it then says nothing rather than report a false difference to Excel.
 
@@ -136,7 +114,7 @@ Numbers become real numbers, also German (1.234,50), Swiss (1'234.50) or English
 
 ## Limits and liability
 
-Gegenprobe recalculates and looks for typical mistakes. It can miss mistakes and can flag something that is correct. It does not replace your own review: whoever uses the workbook stays responsible for its numbers and decisions. Every fix shows what it writes where before it is applied, and **Rückgängig** takes it back out. Gegenprobe is free and open source and provided without any warranty (see [License](LICENSE)). The panel shows this notice when it first opens and any time via **i**.
+Gegenprobe recalculates and looks for typical mistakes. It can miss mistakes and can flag something that is correct. It does not replace your own review: whoever uses the workbook stays responsible for its numbers and decisions. Every fix shows what it writes where before it is applied, and **Rückgängig** takes it back out. Gegenprobe is free and open source and provided without any warranty (see [License](../LICENSE)). The panel shows this notice when it first opens and any time via **i**.
 
 ## Light on memory
 
@@ -168,4 +146,4 @@ The code is in `src/voiceagent`. The checks live in `analyse.py` (entry point), 
 
 ## License
 
-MIT, see [LICENSE](LICENSE).
+MIT, see [LICENSE](../LICENSE).

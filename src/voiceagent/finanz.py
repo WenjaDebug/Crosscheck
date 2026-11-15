@@ -1271,11 +1271,19 @@ def _words_of(name: str) -> set[str]:
     return {w for w in re.findall(r"[a-z0-9ø]+", _plain(name, keep_spaces=True)) if len(w) > 2}
 
 
+def _year_head(ctx: _Ctx, pos: Pos) -> bool:
+    """Eine Jahreszahl in einer Kopfzeile (2025 | 2026 | 2027 …) beschriftet Spalten und ist keine Annahme."""
+    value = ctx.sheet.inputs.get(pos)
+    if not _number(value) or value != int(value) or not 1900 <= value <= 2100:
+        return False
+    return any(_number(nxt := ctx.sheet.inputs.get((pos[0], pos[1] + step))) and nxt == value + step for step in (-1, 1))
+
+
 def _qualifier(ctx: _Ctx) -> list[Finding]:
     """Zwei Annahmen mit demselben Namen bis auf ein Wort (Zinssatz Guthaben, Zinssatz Kredit). Nennt die Formel das
     andere Wort (Zinsaufwand Kredit) und nicht das eigene, liest sie die falsche."""
     inputs = {p: _row_name(ctx, p) for p, v in ctx.sheet.inputs.items()
-              if p not in ctx.sheet.nodes and _number(v) and not isinstance(v, bool)}
+              if p not in ctx.sheet.nodes and _number(v) and not isinstance(v, bool) and not _year_head(ctx, p)}
     groups: dict[tuple, list[Pos]] = {}
     for p, n in inputs.items():
         words = _words_of(n)
